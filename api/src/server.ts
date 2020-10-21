@@ -1,3 +1,6 @@
 import Application from './app';
+const credentials = require('./configs/database/credentials.json');
 
-Application.start();
+const App = new Application(credentials.uri, credentials.username, credentials.password, credentials.database);
+
+App.start();
