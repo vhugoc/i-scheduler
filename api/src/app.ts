@@ -1,5 +1,8 @@
 import express from 'express';
+import morgan from 'morgan';
 import Connection from './configs/database/connection';
+import Router from './router';
+
 const app = express();
 
 class App extends Connection {
@@ -12,9 +15,21 @@ class App extends Connection {
   // Run server
   start() {
     super.connect();
+    this.middlewares();
+    this.routes();    
     app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);
     });
+  }
+  // Middlewares initialization
+  middlewares() {
+    app.use(express.json());
+    app.use(morgan('tiny'));
+  }
+
+  // Router initialization
+  routes() {
+    app.use(Router.init());
   }
 }
 
