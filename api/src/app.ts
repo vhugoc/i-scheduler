@@ -16,7 +16,7 @@ class App extends Connection {
   start() {
     super.connect();
     this.middlewares();
-    this.routes();    
+    this.routes();
     app.listen(this.port, () => {
       console.log(`Server running on port ${this.port}`);
     });
