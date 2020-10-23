@@ -1,6 +1,15 @@
 /** @module ServiceModel */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
+
+export interface IServiceModel extends Document {
+  _id: string;
+  user_id: string;
+  name: string;
+  category_id: string;
+  description: string;
+  value: number;
+}
 
 const ServiceSchema = new Schema({
   user_id: {
@@ -27,4 +36,4 @@ const ServiceSchema = new Schema({
   timestamps: true
 });
 
-export default model('Service', ServiceSchema);
+export default model<IServiceModel>('Service', ServiceSchema);

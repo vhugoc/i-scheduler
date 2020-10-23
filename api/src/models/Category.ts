@@ -1,6 +1,13 @@
 /** @module CategoryModel */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
+
+export interface ICategoryModel extends Document {
+  _id: string;
+  user_id: string;
+  name: string;
+  description: string;
+}
 
 const CategorySchema = new Schema({
   user_id: {
@@ -19,4 +26,4 @@ const CategorySchema = new Schema({
   timestamps: true
 });
 
-export default model('Category', CategorySchema);
+export default model<ICategoryModel>('Category', CategorySchema);

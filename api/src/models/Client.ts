@@ -1,6 +1,14 @@
 /** @module ClientModel */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
+
+export interface IClientModel extends Document {
+  _id: string;
+  user_id: string;
+  name: string;
+  whatsapp: string;
+  email: string;
+}
 
 const ClientSchema = new Schema({
   user_id: {
@@ -23,4 +31,4 @@ const ClientSchema = new Schema({
   timestamps: true
 });
 
-export default model('Client', ClientSchema);
+export default model<IClientModel>('Client', ClientSchema);

@@ -1,8 +1,19 @@
 /** @module UserModel */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
 
-const UserSchema = new Schema({
+export interface IUserModel extends Document {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  subscription_plan_id: string;
+  is_active: boolean;
+  status: boolean;
+  expiration_date: Date;
+}
+
+const UserSchema: Schema = new Schema({
   name: {
     type: String,
     required: true
@@ -37,4 +48,4 @@ const UserSchema = new Schema({
   timestamps: true
 });
 
-export default model('User', UserSchema);
+export default model<IUserModel>('User', UserSchema);

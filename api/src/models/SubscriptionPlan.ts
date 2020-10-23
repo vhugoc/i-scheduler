@@ -1,6 +1,18 @@
 /** @module SubscriptionPlanModel */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
+
+export interface ISubscriptionPlanModel extends Document {
+  _id: string;
+  name: string;
+  access: number;
+  description: string;
+  payment: string;
+  max_services: number;
+  max_categories: number;
+  max_emails: number;
+  value: number;
+}
 
 const SubscriptionPlanSchema = new Schema({
   name: {
@@ -40,4 +52,4 @@ const SubscriptionPlanSchema = new Schema({
   timestamps: true
 });
 
-export default model('SubscriptionPlan', SubscriptionPlanSchema);
+export default model<ISubscriptionPlanModel>('SubscriptionPlan', SubscriptionPlanSchema);

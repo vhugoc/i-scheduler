@@ -1,6 +1,18 @@
 /** @module ServiceOrder */
 
-import { model, Schema } from 'mongoose';
+import { model, Document, Schema } from 'mongoose';
+
+export interface IServiceOrderModel extends Document {
+  _id: string;
+  user_id: string;
+  client_id: string;
+  services: object;
+  title: string;
+  description: string;
+  time: object;
+  is_closed: boolean;
+  value: number;
+}
 
 const ServiceOrderSchema = new Schema({
   user_id: {
@@ -38,4 +50,4 @@ const ServiceOrderSchema = new Schema({
   timestamps: true
 });
 
-export default model('ServiceOrder', ServiceOrderSchema);
+export default model<IServiceOrderModel>('ServiceOrder', ServiceOrderSchema);
