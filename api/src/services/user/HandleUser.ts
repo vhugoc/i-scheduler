@@ -3,6 +3,7 @@
 import User, { IUserModel } from '../../models/User';
 import MainHelper from '../helpers/MainHelper';
 import DateHelper from '../helpers/DateHelper';
+import { response } from 'express';
 
 interface IUser {
   _id: IUserModel['_id'];
@@ -16,6 +17,23 @@ interface IUser {
 }
 
 class HandleUser {
+
+  /**
+   * Show user profile
+   * @param id 
+   */
+  async profile(id: string) {
+    try {
+      const user = await <IUser><unknown>User.findById(id);
+      if (!user)
+        return { success: false, description: "Invalid ID", status: 400 };
+
+      return { success: true, user, status: 200 };
+      
+    } catch(e) {
+      return { error: true, description: e, status: 500 };
+    }
+  }
 
   /**
    * Verifies if user already exists
@@ -132,6 +150,53 @@ class HandleUser {
 
       if (!create)
         return { success: false, description: "Internal Error", status: 500 };
+
+      return { success: true, status: 200 };
+
+    } catch(e) {
+      return { error: true, description: e, status: 500 };
+    }
+  }
+
+  /**
+   * Update user name and email
+   * @param id 
+   * @param name 
+   * @param email 
+   */
+  async update(id:string, name: string, email: string) {
+    try {
+      if (!await MainHelper.validate_email(email))
+        return { success: false, description: "Invalid email", status: 400 };
+
+      if (await this.exists(email, id))
+        return { success: false, description: "User already exists", status: 400 };
+
+      const data = await User.findById(id);
+      let user = <IUser><unknown>data;
+
+      user.name = name;
+      user.email = email;
+      await data?.updateOne(user);
+
+      return { success: true, status: 200 };
+
+    } catch(e) {
+      return { error: true, description: e, status: 500 };
+    }
+  }
+
+  /**
+   * Remove user account
+   * @param id 
+   */
+  async remove(id:string) {
+    try {
+      const exists = await this.profile(id);
+      if (!exists.success)
+        return { success: false, description: exists.description, status: 400 };
+
+      await User.deleteOne({ _id: id });
 
       return { success: true, status: 200 };
 
