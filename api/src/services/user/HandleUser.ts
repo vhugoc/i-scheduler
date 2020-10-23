@@ -1,8 +1,19 @@
 /** @module HandleUser */
 
-import User from '../../models/User';
+import User, { IUserModel } from '../../models/User';
 import MainHelper from '../helpers/MainHelper';
 import DateHelper from '../helpers/DateHelper';
+
+interface IUser {
+  _id: IUserModel['_id'];
+  name: IUserModel['name'];
+  email: IUserModel['email'];
+  password: IUserModel['password'];
+  subscription_plan_id: IUserModel['subscription_plan_id'];
+  is_active: IUserModel['is_active'];
+  status: IUserModel['status'];
+  expiration_date: IUserModel['expiration_date']
+}
 
 class HandleUser {
 
@@ -11,7 +22,7 @@ class HandleUser {
    * @param email 
    * @param id 
    */
-  async exists(email: string, id: string) {
+  async exists(email: string, id?: string) {
     try {
       let exists;
 
@@ -36,6 +47,67 @@ class HandleUser {
     }
   }
 
+  /**
+   * User signin
+   * @param email 
+   * @param password 
+   */
+  async signin(email: string, password: string) {
+    try {
+      const data = await User.findOne({ email: email });
+
+      let user = <IUser><unknown>data;
+
+      if (!user)
+        return { success: false, description: "User does not exists", status: 400 };
+
+      if (!await MainHelper.compare_encrypt(password, user.password))
+        return { success: false, description: "Incorrect password", status: 400 };
+
+      if (!user.is_active)
+        return { success: false, description: "User is not active", status: 400 };
+
+      if (!await DateHelper.is_before(user.expiration_date))
+        return { success: false, description: "Expired user", status: 400 };
+
+      const token = await MainHelper.generate_token(user._id);
+      
+      user.status = true;
+      await data?.updateOne(user);
+
+      return { success: true, user, token, status: 200 };
+
+    } catch(e) {
+      return { error: true, description: e, status: 500 };
+    }
+  }
+
+  /**
+   * User signout
+   * @param email 
+   */
+  async signout(email: string) {
+    try {
+      const data = await User.findOne({ email: email });
+      let user = <IUser><unknown>data;
+
+      user.status = false;
+      await data?.updateOne(user);
+
+      return { success: true, status: 200 };
+
+    } catch(e) {
+      return { error: true, description: e, status: 500 };
+    }
+  }
+
+  /**
+   * User registration
+   * @param name 
+   * @param email 
+   * @param password 
+   * @param subscription_plan_id 
+   */
   async register(name: string, email: string, password: string, subscription_plan_id: string) {
     try {
       if (!await MainHelper.validate_email(email))
@@ -48,13 +120,15 @@ class HandleUser {
 
       const exp_date = await DateHelper.add(1, 'month');
 
-      const create = await User.create({
+      let user = <IUser>{
         name,
         email,
         password: pwd,
         subscription_plan_id: '5f9184b76b44592c80d3a419',
         expiration_date: exp_date
-      });
+      };
+
+      const create = await User.create(user);
 
       if (!create)
         return { success: false, description: "Internal Error", status: 500 };
